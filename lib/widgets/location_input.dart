@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:greatplaces/screens/map_screen.dart';
+import 'package:greatplaces/utils/location_util.dart';
 import 'package:location/location.dart';
 
 class LocationInput extends StatefulWidget {
@@ -15,7 +17,21 @@ class _LocationInputState extends State<LocationInput> {
   late String _previewImageUrl = '';
 
   Future<void> _getCurrentUserLocation() async {
-    final LocData = await Location().getLocation();
+    final locData = await Location().getLocation();
+
+    final staticMapImageUrl = LocationUtil.generateLocationPreviewImage(
+        latitude: locData.latitude, longitude: locData.longitude);
+
+    setState(() {
+      _previewImageUrl = staticMapImageUrl;
+    });
+  }
+
+  Future<void> _selectOnMap() async {
+    final selectedLocation = await Navigator.of(context).push(MaterialPageRoute(
+        fullscreenDialog: true, builder: (ctx) => MapScreen()));
+
+    if (selectedLocation == null) return;
   }
 
   @override
@@ -45,7 +61,8 @@ class _LocationInputState extends State<LocationInput> {
             TextButton(
                 onPressed: _getCurrentUserLocation,
                 child: Text('Localização Atual')),
-            TextButton(onPressed: () {}, child: Text('Selecione no Mapa'))
+            TextButton(
+                onPressed: _selectOnMap, child: Text('Selecione no Mapa'))
           ],
         )
       ],
